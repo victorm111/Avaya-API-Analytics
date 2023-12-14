@@ -41,10 +41,6 @@ def test_read_config_file():
     else:
         # Convert the YAML data to a Pandas DataFrame
         df_config = pd.DataFrame.from_dict(test_config)
-        output_prefix_path = df_config['output_files']['output_prefix_path']
-
-        # create env variable tracking home dir
-        os.environ['home_dir'] = str(df_config['dirs']['working'])
 
     finally:
         # check config file read ok
@@ -61,17 +57,27 @@ def test_read_config_file():
     yield df_config
 
 
-
 @pytest.fixture(scope='function')
-def getToken():
+def getToken(test_read_config_file):
 
-  url = 'https://releasev2.cc.avayacloud.com'
-  url_api = '/auth/realms/IKHHJK/protocol/openid-connect/token'
+  url = test_read_config_file['urls']['url']
+  url_api_token = test_read_config_file['urls']['url_api_token']
+
+  clientid = test_read_config_file['auth']['clientid']
+  secret = test_read_config_file['auth']['secret']
+
   s = 'null'    # requests session object
 
-  LOGGER.debug('conftest:: start getToken, function scoped')
+  LOGGER.debug('conftest:: start getToken')
 
-  payload = 'grant_type=client_credentials&client_id=wfm&client_secret=nu6rSdYUVn0ooaXugpGmdkoXs2aEGdhd'
+
+  payload = {
+      'grant_type': 'client_credentials',
+      'client_id': clientid,
+      'client_secret': secret
+  }
+
+  #payload = 'grant_type=client_credentials&client_id=clientid&client_secret=nu6rSdYUVn0ooaXugpGmdkoXs2aEGdhd'
   headers = {
     'Content-Type': 'application/x-www-form-urlencoded'
   }
@@ -79,19 +85,14 @@ def getToken():
   # create a sessions object
   session = requests.Session()
   assert session, 'session not created'
-  # Set the Content-Type header to application/json for all requests in the session
-  # session.headers.update({'Content-Type': 'application/json'})
-
   retry = Retry(connect=25, backoff_factor=0.5)
-
   adapter = HTTPAdapter(max_retries=retry)
   session.mount('https://', adapter)
   session.mount('http://', adapter)
-  # Set the Content-Type header to application/json for all requests in the session
   session.headers.update(headers)
 
   try:
-    s = session.post(url + url_api, data=payload, timeout=25, verify=False)
+    s = session.post(url + url_api_token, data=payload, timeout=25, verify=False)
     s.raise_for_status()
   except requests.exceptions.HTTPError as errh:
     print("Http Error:", errh)
@@ -114,8 +115,6 @@ def getToken():
   LOGGER.debug('conftest:: finish getToken')
 
   yield token
-
-
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):

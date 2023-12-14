@@ -9,108 +9,19 @@ dirs:
   working: !!str "C:\\Users\\victorm\\PycharmProjects\\pythonProject1\\auto\\"  # note above wrt PyCharm working + target directories
   
 urls:
-  url: !!str "https://releasev2.cc.avayacloud.com"       # SSO logon Tenant admin T1
-  url_AnalyticsintervalDetailed: !!str "/api/analytics/historical/v1beta/accounts/IKHHJK/reports/EngagementDetail?pageSize=150&interval=start:202312081000,ending:202312081015"              # used after initial login context saved
+  url: !!str "https://releasev2.cc.avayacloud.com"       # prod release v2
+  url_api_token: !!str "/auth/realms/IKHHJK/protocol/openid-connect/token"
+  url_AnalyticsIntervalDetailed: !!str "/api/analytics/historical/v1beta/accounts/IKHHJK/reports/EngagementDetail?pageSize=150&interval=start:202312081000,ending:202312081015"              # used after initial login context saved
   url_AnalyticsDailyDetailed: !!str "/api/analytics/historical/v1beta/accounts/IKHHJK/reports/EngagementDetail?pageSize=150&daily=20231208"     # dbrealm signin, T0
 
-# AWE credentials tenant admin, T0 admin
-logon:
-  USERNAME_TA : !!str "admin01@verintnew01.prodreleasev2.com"     # tenant admin
-  PASSWORD_TA : !!str "Verint.123!!"
-  USERNAME_T0 : !!str "admin01@avaya.com"     # tenant admin
-  PASSWORD_T0 : !!str "1_Abc_123"
+# CCaaS API credentials
+auth:
+  clientid : !!str "wfm"                                          # clientid
+  secret : !!str "nu6rSdYUVn0ooaXugpGmdkoXs2aEGdhd"               # secret
 
 logs:
   log_level : !!str "DEBUG" # all capital letters required for this field
-  
-output_files:
-  dump_screenshots : !!bool TRUE # dump search screens to png
-  dump_xml : !!bool TRUE   # dump outerHTML to xml
-  output_xml : !!str "output_xml.xml" # dump search page xml
-  log_out : !!str "_checkAWE.log"     # log file name
-  out_csv : !!str "file_recSearchResultsOuter.csv"    # output recordings search dumped to csv
-  output_prefix_path : !!str "output\\"        # where to dump all output files incl csv, log files etc
-  output_prefix_path_old : !!str "old\\"        # where to store all old output files incl csv, log files etc in 'output_prefix_path' folder
-  output_inner_html : !!str "capture_RecTablesInnerhtml.xml"   # dump file for search menu > innerhtml
-  output_text_dump : !!str "output_textdump-rec.txt"   # text file to dump search page
-  dump_text : !!bool TRUE
-  dump_csv : !!bool TRUE
-  CaptureVerification_csv : !!str "CaptureVerification"    # output subdirectory where doAutomated Capture Verification zip downloaded 
-  
-screenshots:
-  interactions_menu_screenshot : !!str "interactionsMenu_screen.png"      # screenshot name for interactions menu
-  recordings_default_screen : !!str "screenshot_RecordingsDefaultSearch.png" # screenshot name for search recordings
-  
-waits:
-  driver_wait_sec : !!int 30  # wait time in seconds until elements are available on the webpage, otherwise timeout exception occurs
-  
-chromedriver:
-  path_to_chrome : !!str 'drivers/chromedriver.exe'       # no longer required with webdriver-manager
-  UseWebdriver_manager: !!str 'FALSE'            # if set to TRUE uses webdriver_manager to set up selenium driver, otherwise uses in-situ Chrome webdriver and path_to_chrome installation option
 
-# search string in recordings search menu results  
-search:
-  search_string : !!str "08/15/2023"      # search by particular date, formT mm/dd/yyyy
-  user_search : !!str "user007@verintnew01.prodreleasev2.com" # CCaaS user format e.g. "user007@verintnew01.prodreleasev2.com"
-  any_string : !!str "user007"
-  
-swversion:
-  logon: !!str "Version: 15.2 (15.2.1024.728)"
-  integration_server: !!str "'Version: 15.2 (15.2.1014.390)'"
-    
-search_calls:
-  number_rows: !!int 0      # number of recorded calls found
-  CaptVerif_callsFound: !!int 0     # number of recorded calls found with Capture Verification issues
-        
-viewport_size:
-  width: !!int 1900
-  height: !!int 1300
-
-# T0 admin tests, tests requiring T0 webpage access, caps "YES" or "NO"
-T0_to_test:
-  test_1: !!str "YES"
-  test_2: !!str "YES"
-  test_3: !!str "YES"
-  test_4: !!str "YES"
-  test_5: !!str "YES"
-  test_6: !!str "YES"
-  test_7: !!str "YES"
-  test_8: !!str "YES"
-  test_9: !!str "YES"
-  test_10: !!str "YES"
-  test_11: !!str "YES"   
-  test_12: !!str "YES"   
- 
-# T1 tenant admin tests , tests requiring T1 tenant admin access
-T1_to_test:
-  test_1: !!str "YES"
-  test_2: !!str "YES"
-  test_3: !!str "YES"
-  test_4: !!str "YES"
-  test_5: !!str "YES"
-  test_6: !!str "YES"
-  test_7: !!str "YES"
-  test_8: !!str "YES"
-  test_9: !!str "YES"
-  test_10: !!str "YES"
-  test_11: !!str "YES"   
-  test_12: !!str "YES"
-  test_13: !!str "YES"   
-  test_14: !!str "YES"
-  
-# T1 tenant admin captureVerification tests , tests requiring T1 tenant admin access
-T1CaptVerif_to_test:
-  test_1: !!str "YES"
-  test_2: !!str "YES"
-  test_3: !!str "YES"
-  test_4: !!str "YES"
-  test_5: !!str "YES"
-  test_6: !!str "YES"
-  test_7: !!str "YES"
-  test_8: !!str "YES"
-  
-search_days:
-  days: !!int 1     # number of days to search for in search and relay
 
 # LOG LEVELS
 # Level	Numeric Value	Description

@@ -1,11 +1,13 @@
 
-
-import json
 import logging
-import os
+
 import pandas as pd
 import json
 import pytest
+import os
+import sys
+import time as time
+from datetime import date
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -14,18 +16,43 @@ from urllib3.util.retry import Retry
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
 
-class test_retrieveDetailReport():
+# getting the name of the directory
+current = os.path.dirname(os.path.realpath(__file__))
 
-    def __init__(self, test_read_config_file:object) -> None:
+# Getting the parent directory name
+# where the current directory is present.
+parent = os.path.dirname(current)
+# adding the parent directory to
+# the sys.path.
+sys.path.append(parent)
+# retrieve data and time for test run
+today = str(date.today())
+t = time.localtime()
+current_time = time.strftime("%H_%M_%S", t)
+
+# getting the name of the directory
+current = os.path.dirname(os.path.realpath(__file__))
+
+# Getting the parent directory name
+# where the current directory is present.
+parent = os.path.dirname(current)
+
+
+class test_retrieveDetailReport:
+
+    def __init__(self, test_read_config_file: object) -> None:
+        """init the class"""
 
         LOGGER.debug('retrieveDetailReport:: init start')
         self.title = 'retrieveAnalyticsDetailedReport'
         self.author = 'VW'
         self.URL = test_read_config_file['urls']['url']
-        self.URL_api_interval = test_read_config_file['urls']['url_AnalyticsintervalDetailed']
+        self.URL_api = 'null'
+        self.URL_api_interval = test_read_config_file['urls']['url_AnalyticsIntervalDetailed']
         self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed']
         self.s = 'null'     # session request
-        self.DetailedReportInterval_df = 'null'
+        self.DetailedReportInterval_df = pd.DataFrame()     # hold returned data, create empty
+        self.DetailedReportDaily_df = pd.DataFrame()        # hold return data
         self.response_dict = 'null'
         self.token = 'null'
         self.payload = {}
@@ -37,12 +64,13 @@ class test_retrieveDetailReport():
         LOGGER.debug('retrieveDetailReport:: init finished')
         return
 
-    def test_buildIntervalRequest(self, getToken):
+    def test_buildRequest(self, getToken) -> None:
+        """build the request"""
 
         LOGGER.debug('test_buildIntervalRequest:: started')
         self.token = getToken
         assert getToken, 'token not retrieved'
-        token_append = 'Bearer '+ getToken        # cat Bearer to token, include space after 'Bearer '
+        token_append = 'Bearer ' + getToken        # cat Bearer to token, include space after 'Bearer '
 
         LOGGER.debug('test_buildIntervalRequest:: token retrieved and assembled')
 
@@ -64,45 +92,56 @@ class test_retrieveDetailReport():
         self.session.mount('http://', self.adapter)
         # Set the Content-Type header to application/json for all requests in the session
         self.session.headers.update(self.headers)
-        print(f'dump headers: {self.session.headers}')
+        # print(f'dump headers: {self.session.headers}')
         LOGGER.debug('test_buildIntervalRequest:: finished')
         return
 
-    def test_sendRequestInterval(self):
+    def test_sendRequest(self) -> object:
+        """ send the request and create df"""
 
         LOGGER.debug('test_sendRequestInterval:: start')
 
-        try:
-            self.s = self.session.get(self.URL + self.URL_api_interval,  timeout=25, verify=False)
-            self.s.raise_for_status()
-        except requests.exceptions.HTTPError as errh:
-            print("test_sendRequestInterval Http Error:", errh)
-        except requests.exceptions.ConnectionError as errc:
-            print("test_sendRequestInterval Error Connecting:", errc)
-        except requests.exceptions.Timeout as errt:
-            print("test_sendRequestInterval Timeout Error:", errt)
-        except requests.exceptions.RequestException as err:
-            print("test_sendRequestInterval OOps: Something Else", err)
+        for i in range(2):     # do both interval and daily
 
-        assert self.s.status_code == 200, 'session request response not 200 OK'
+            try:
+                if i < 1:
+                    self.URL_api = self.URL_api_interval
+                    LOGGER.debug('test_sendRequest:: start collect interval')
+                else:
+                    self.URL_api = self.URL_api_daily
+                    LOGGER.debug('test_sendRequest:: start collect daily')
 
-        print(f'test_sendRequestInterval session resp received code: {self.s.status_code}')
-        LOGGER.debug('test_sendRequestInterval:: response received')
+                self.s = self.session.get(self.URL + self.URL_api,  timeout=25, verify=False)
+                self.s.raise_for_status()
 
-        self.response_dict = json.loads(self.s.text)
+            except requests.exceptions.HTTPError as errh:
+                print("test_sendRequest Http Error:", errh)
+            except requests.exceptions.ConnectionError as errc:
+                print("test_sendRequest Error Connecting:", errc)
+            except requests.exceptions.Timeout as errt:
+                print("test_sendRequest Timeout Error:", errt)
+            except requests.exceptions.RequestException as err:
+                print("test_sendRequest OOps: Something Else", err)
 
-        if self.s.status_code == 200:
-            # normalise data
-            self.DetailedReportInterval_df = pd.json_normalize(self.response_dict)
-            # print(f'test_getEngReportInterval, returned data: {DetailedReportInterval_df.head}')
-            self.DetailedReportInterval_df.to_json('./output/EngDetailedReport/IntervaloutputEngDetail.json', orient='table')
-        else:
-            self.DetailedReportInterval_df = 'null'
+            assert self.s.status_code == 200, 'session request response not 200 OK'
 
-        assert not self.DetailedReportInterval_df.empty, 'No DetailedReportInterval_df returned'
+            print(f'test_sendRequest session resp received code: {self.s.status_code}')
+            LOGGER.debug('test_sendRequest:: response received')
 
-        LOGGER.debug('test_sendRequestInterval:: finished')
-        return self.DetailedReportInterval_df
+            self.response_dict = json.loads(self.s.text)
 
+            if i < 1:
+                self.DetailedReportInterval_df = pd.json_normalize(self.response_dict)  # normalise data
+                self.DetailedReportInterval_df.to_json('./output/EngDetailedReport/IntervalOutputEngDetail.json',
+                                                       orient='table')
+                # print(f'test_getEngReportInterval, returned data: {DetailedReportInterval_df.head}')
+            else:
+                self.DetailedReportDaily_df = pd.json_normalize(self.response_dict)
+                self.DetailedReportDaily_df.to_json('./output/EngDetailedReport/DailyOutputEngDetail.json',
+                                                    orient='table')
 
+        assert not len(self.DetailedReportInterval_df) == 0, 'No DetailedReportInterval_df returned'
+        assert not len(self.DetailedReportDaily_df) == 0, 'No DetailedReportInterval_df returned'
 
+        LOGGER.debug('test_sendRequest:: finished')
+        return self.DetailedReportInterval_df, self.DetailedReportDaily_df
