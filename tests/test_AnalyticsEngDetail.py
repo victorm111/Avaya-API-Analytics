@@ -7,7 +7,7 @@ import pytest
 import os
 import sys
 import time as time
-from datetime import date
+from datetime import date,  timedelta
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -30,13 +30,15 @@ today = str(date.today())
 t = time.localtime()
 current_time = time.strftime("%H_%M_%S", t)
 
+
+
 # getting the name of the directory
 current = os.path.dirname(os.path.realpath(__file__))
 
 # Getting the parent directory name
 # where the current directory is present.
 parent = os.path.dirname(current)
-
+#yesterdaydate = (date.today() - timedelta(1)).isoformat().replace('-','')   # create yesterday's date
 
 class test_retrieveDetailReport:
 
@@ -44,12 +46,13 @@ class test_retrieveDetailReport:
         """init the class"""
 
         LOGGER.debug('retrieveDetailReport:: init start')
+        self.yesterdaydate = (date.today() - timedelta(1)).isoformat().replace('-','')   # yesterday's date for daily report
         self.title = 'retrieveAnalyticsDetailedReport'
         self.author = 'VW'
         self.URL = test_read_config_file['urls']['url']
         self.URL_api = 'null'
         self.URL_api_interval = test_read_config_file['urls']['url_AnalyticsIntervalDetailed']
-        self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed']
+        self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000'
         self.s = 'null'     # session request
         self.DetailedReportInterval_df = pd.DataFrame()     # hold returned data, create empty
         self.DetailedReportDaily_df = pd.DataFrame()        # hold return data
@@ -112,6 +115,9 @@ class test_retrieveDetailReport:
                     LOGGER.debug('test_sendRequest:: start collect daily')
 
                 self.s = self.session.get(self.URL + self.URL_api,  timeout=25, verify=False)
+                # need handle next page
+                self.response_dict = json.loads(self.s.text)
+
                 self.s.raise_for_status()
 
             except requests.exceptions.HTTPError as errh:
@@ -128,7 +134,7 @@ class test_retrieveDetailReport:
             print(f'test_sendRequest session resp received code: {self.s.status_code}')
             LOGGER.debug('test_sendRequest:: response received')
 
-            self.response_dict = json.loads(self.s.text)
+
 
             if i < 1:
                 self.DetailedReportInterval_df = pd.json_normalize(self.response_dict)  # normalise data

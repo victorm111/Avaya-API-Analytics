@@ -11,8 +11,8 @@ dirs:
 urls:
   url: !!str "https://releasev2.cc.avayacloud.com"       # prod release v2
   url_api_token: !!str "/auth/realms/IKHHJK/protocol/openid-connect/token"
-  url_AnalyticsIntervalDetailed: !!str "/api/analytics/historical/v1beta/accounts/IKHHJK/reports/EngagementDetail?pageSize=150&interval=start:202312081000,ending:202312081015"              # used after initial login context saved
-  url_AnalyticsDailyDetailed: !!str "/api/analytics/historical/v1beta/accounts/IKHHJK/reports/EngagementDetail?pageSize=150&daily=20231208"     # dbrealm signin, T0
+  url_AnalyticsIntervalDetailed: !!str "/api/analytics/historical/v1beta/accounts/IKHHJK/reports/EngagementDetail?pageSize=150&interval=starting:202312081000,ending:202312081015"              # used after initial login context saved
+  url_AnalyticsDailyDetailed: !!str "/api/analytics/historical/v1beta/accounts/IKHHJK/reports/EngagementDetail?pageSize=150&interval=starting:"     # will append yesterday's date YYYYMMDD
 
 # CCaaS API credentials
 auth:
