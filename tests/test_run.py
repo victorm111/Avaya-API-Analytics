@@ -36,12 +36,12 @@ from test_AnalyticsEngDetail import test_retrieveDetailReport
 def test_run_all(test_read_config_file, getToken) -> None:
     """run Analytics detailed Eng Reports interval and daily """
     # create class instance
-    LOGGER.debug('test_AnalyticsEngDetail :: test_run_all:: started')
-    LOGGER.debug('test_AnalyticsEngDetail :: test_run_all:: init class')
+    LOGGER.debug('test_run_all:: started')
+    LOGGER.debug('test_run_all:: init class')
     test_DetailReport = test_retrieveDetailReport(test_read_config_file)
-    LOGGER.debug('test_AnalyticsEngDetail :: test_run_all:: test_buildRequest()')
+    LOGGER.debug('test_run_all:: test_buildRequest()')
     test_DetailReport.test_buildRequest(getToken)
-    LOGGER.debug('test_AnalyticsEngDetail :: test_run_all:: test_sendRequest()')
+    LOGGER.debug('test_run_all:: test_sendRequest()')
     df_DetailEngInterval, df_DetailEngDaily = test_DetailReport.test_sendRequest()  # retrieves both interval and daily data
 
-    LOGGER.debug('test_AnalyticsEngDetail :: test_run_all:: finished')
+    LOGGER.debug('test_run_all:: finished')
